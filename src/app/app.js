@@ -1,19 +1,20 @@
-import { createState } from "./view.js";
-import { isUrlValid, isUrlUnique } from "./utils.js";
 import i18next from "i18next";
+import createState from "./view";
+import { isUrlValid, isUrlUnique } from "./utils";
 
 const addUrl = (state, url) => {
+  const localState = state;
   isUrlValid(url)
     .then(() => isUrlUnique(state.urls, url))
     .then(() => {
-      state.is_invalid = false;
-      state.error = "";
-      state.urls.push(url);
+      localState.is_invalid = false;
+      localState.error = "";
+      localState.urls.push(url);
     })
     .catch((err) => {
       const msg = i18next.t(err.errors[0].key);
-      state.is_invalid = true;
-      state.error = msg;
+      localState.is_invalid = true;
+      localState.error = msg;
     });
 };
 

@@ -5,20 +5,6 @@ const state = {
   error: "",
   urls: []
 };
-export const createState = () => {
-  return onChange(state, function (path, value, previousValue, applyData) {
-    if (path === "is_invalid") {
-      renderInput(value);
-    }
-    if (path === "error") {
-      renderFeedback(value);
-    }
-    console.log();
-    if (path === "urls") {
-      renderInput(false);
-    }
-  });
-};
 
 const renderFeedback = (msg) => {
   const feedback = document.querySelector(".feedback");
@@ -34,3 +20,15 @@ const renderInput = (isInvalid) => {
     input.focus();
   }
 };
+
+export default () => onChange(state, (path, value) => {
+  if (path === "is_invalid") {
+    renderInput(value);
+  }
+  if (path === "error") {
+    renderFeedback(value);
+  }
+  if (path === "urls") {
+    renderInput(false);
+  }
+});

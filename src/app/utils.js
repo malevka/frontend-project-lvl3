@@ -1,5 +1,6 @@
 import { string, mixed, setLocale } from "yup";
 import i18next from "i18next";
+
 i18next.init({
   lng: "ru",
   debug: true,
@@ -24,11 +25,11 @@ setLocale({
   }
 });
 export const isUrlValid = (url) => {
-  let schema = string().url();
+  const schema = string().url();
   return schema.validate(url);
 };
 
 export const isUrlUnique = (urls, newUrl) => {
-  let schema = mixed().notOneOf(urls);
+  const schema = mixed().notOneOf(urls);
   return schema.validate(newUrl);
 };
