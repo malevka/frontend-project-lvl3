@@ -1,6 +1,6 @@
 import i18next from "i18next";
-import createState from "./view";
-import { isUrlValid, isUrlUnique } from "./utils";
+import createState from "./view.js";
+import { isUrlValid, isUrlUnique } from "./utils.js";
 
 const addUrl = (state, url) => {
   const localState = state;
