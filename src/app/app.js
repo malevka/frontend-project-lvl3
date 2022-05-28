@@ -1,5 +1,6 @@
 import { createState } from "./view.js";
 import { isUrlValid, isUrlUnique } from "./utils.js";
+import i18next from "i18next";
 
 const addUrl = (state, url) => {
   isUrlValid(url)
@@ -9,7 +10,8 @@ const addUrl = (state, url) => {
       state.error = "";
       state.urls.push(url);
     })
-    .catch((msg) => {
+    .catch((err) => {
+      const msg = i18next.t(err.errors[0].key);
       state.is_invalid = true;
       state.error = msg;
     });
