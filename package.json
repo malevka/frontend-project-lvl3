@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "private": true,
   "scripts": {
+    "prepare": "husky install",
     "test": "echo \"Error: no test specified\" && exit 0",
     "build": "rm -rf dist && NODE_ENV=production npx webpack"
   },
@@ -24,6 +25,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.4",
     "html-webpack-plugin": "^5.5.0",
+    "husky": "^8.0.1",
     "mini-css-extract-plugin": "^2.5.3",
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
