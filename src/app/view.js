@@ -6,10 +6,19 @@ const state = {
   urls: []
 };
 
-const renderFeedback = (msg) => {
+const renderErrorFeedback = (msg) => {
   const feedback = document.querySelector(".feedback");
+  feedback.classList.remove("text-success");
+  feedback.classList.add("text-danger");
   feedback.textContent = msg;
 };
+const renderSuccesFeedback = (msg) => {
+  const feedback = document.querySelector(".feedback");
+  feedback.classList.add("text-success");
+  feedback.classList.remove("text-danger");
+  feedback.textContent = msg;
+};
+
 const renderInput = (isInvalid) => {
   const input = document.getElementById("url-input");
   if (isInvalid) {
@@ -24,11 +33,10 @@ const renderInput = (isInvalid) => {
 export default () => onChange(state, (path, value) => {
   if (path === "is_invalid") {
     renderInput(value);
-  }
-  if (path === "error") {
-    renderFeedback(value);
+    renderErrorFeedback(state.feedback);
   }
   if (path === "urls") {
     renderInput(false);
+    renderSuccesFeedback(state.feedback);
   }
 });
