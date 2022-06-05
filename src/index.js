@@ -7,12 +7,13 @@ const i18nextInstance = i18next.createInstance();
 i18nextInstance
   .init({
     lng: "ru",
-    debug: true,
     resources: {
       ru: {
         translation: {
           url_invalid: "Ссылка должна быть валидным URL",
-          not_unique: "RSS уже существует"
+          not_unique: "RSS уже существует",
+          success: "RSS успешно загружен",
+          rss_invalid: "Ресурс не содержит валидный RSS"
         }
       }
     }

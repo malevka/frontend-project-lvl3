@@ -1,20 +1,23 @@
 import createState from "./view.js";
 import { isUrlValid, isUrlUnique } from "./utils.js";
+import propcessRss from "./proccess_rss.js";
 
 export default (i18nextIns) => {
-  const addUrl = (state, url) => {
+  const addRss = (state, url) => {
     const localState = state;
+    localState.appendProcess = { state: "processing", message: "" };
     isUrlValid(url)
-      .then(() => isUrlUnique(state.urls, url))
       .then(() => {
-        localState.is_invalid = false;
-        localState.feedback = "RSS успешно загружен";
-        localState.urls.push(url);
+        const urls = state.feeds.map(({ feedUrl }) => feedUrl);
+        return isUrlUnique(urls, url);
       })
+      .then(() => propcessRss(state, url, i18nextIns))
+      /* .then(() => {
+        localState.appendProcess = { state: "success", message: i18nextIns.t("success") };
+        localState.urls.push(url);
+      }) */
       .catch((err) => {
-        const msg = i18nextIns.t(err.errors[0].key);
-        localState.is_invalid = true;
-        localState.feedback = msg;
+        localState.appendProcess = { state: "failed", message: i18nextIns.t(err.errors[0].key) };
       });
   };
   const state = createState();
@@ -23,7 +26,7 @@ export default (i18nextIns) => {
   rssForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const input = document.getElementById("url-input");
-    const url = input.value;
-    addUrl(state, url);
+    const url = input.value.trim();
+    addRss(state, url);
   });
 };
