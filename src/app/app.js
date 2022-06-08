@@ -1,6 +1,6 @@
 import createState from "./view.js";
 import { isUrlValid, isUrlUnique } from "./utils.js";
-import propcessRss from "./proccess_rss.js";
+import propcessRss, { updatePosts } from "./proccess_rss.js";
 
 export default (i18nextIns) => {
   const addRss = (state, url) => {
@@ -29,4 +29,5 @@ export default (i18nextIns) => {
     const url = input.value.trim();
     addRss(state, url);
   });
+  updatePosts(state);
 };

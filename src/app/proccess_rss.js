@@ -9,7 +9,7 @@ const parseRss = (content, feedId) => {
   const rssItems = rssDoc.querySelectorAll("item");
   rssItems.forEach((item) => {
     const post = {
-      id: posts.length,
+      id: item.querySelector("guid").textContent,
       feedId,
       title: item.querySelector("title").textContent,
       url: item.querySelector("link").textContent
@@ -27,10 +27,32 @@ export default (state, url, i18nextIns) => {
     .then((content) => parseRss(content, state.feeds.length))
     .then((result) => {
       localState.feeds.push({ url, ...result.feed });
-      localState.posts.push(...result.posts);
+      localState.posts.unshift(...result.posts);
       localState.appendProcess = { state: "success", message: i18nextIns.t("success") };
     })
     .catch(() => {
       localState.appendProcess = { state: "rss_invalid", message: i18nextIns.t("rss_invalid") };
     });
+};
+
+export const updatePosts = (state) => {
+  const localState = state;
+  const promises = [];
+  localState.feeds.forEach(({ url, id }) => {
+    const promise = getRssContent(url)
+      .then((content) => parseRss(content, id))
+      .then((result) => {
+        const existingPosts = localState.posts.reduce((arr, post) => {
+          if (post.feedId === id) {
+            arr.push(post.id);
+          }
+          return arr;
+        }, []);
+        const newPosts = result.posts.filter((post) => !existingPosts.includes(post.id));
+        localState.posts.unshift(...newPosts);
+        return Promise.resolve;
+      });
+    promises.push(promise);
+  });
+  Promise.all(promises).then(() => setTimeout(() => updatePosts(localState), 5000));
 };
