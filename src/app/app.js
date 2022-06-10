@@ -23,7 +23,7 @@ export default (i18nextIns) => {
     const postId = Number(event.relatedTarget.dataset.id);
     const post = state.posts.find(({ id }) => id === postId);
     post.visited = true;
-    state.modal = { title: post.title, body: post.description };
+    state.modal = { title: post.title, body: post.description, url: post.url };
     state.posts = [...state.posts];
   });
 

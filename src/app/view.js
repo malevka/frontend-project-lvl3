@@ -98,16 +98,22 @@ const buildFeeds = (feeds) => {
 };
 
 const buildPostLink = (post) => {
+  const localPost = post;
   const itemLink = document.createElement("a");
-  if (post.visited) {
+  if (localPost.visited) {
     itemLink.classList.add("fw-normal", "link-secondary");
   } else {
     itemLink.classList.add("fw-bold");
   }
   itemLink.target = "_black";
-  itemLink.href = post.url;
-  itemLink.dataset.id = post.id;
-  itemLink.textContent = post.title;
+  itemLink.href = localPost.url;
+  itemLink.dataset.id = localPost.id;
+  itemLink.textContent = localPost.title;
+  itemLink.onclick = () => {
+    itemLink.classList.remove("fw-bold");
+    itemLink.classList.add("fw-normal", "link-secondary");
+    localPost.visited = true;
+  };
   return itemLink;
 };
 const buildViewBtn = (postId) => {
@@ -159,6 +165,10 @@ const renderModal = (value) => {
   modalTitle.textContent = value.title;
   const modalBody = document.querySelector(".modal-body");
   modalBody.textContent = value.body;
+  const modalFooter = document.querySelector(".modal-footer");
+  const modalLink = modalFooter.querySelector(".btn-primary");
+  modalLink.href = value.url;
+  modalLink.target = "_blank";
 };
 export default () => onChange(state, (path, value) => {
   if (path === "appendProcess") {
