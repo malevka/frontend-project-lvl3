@@ -6,7 +6,11 @@ const state = {
     message: ""
   },
   feeds: [],
-  posts: []
+  posts: [],
+  modal: {
+    title: "",
+    body: ""
+  }
 };
 
 const renderFeedback = ({ message, isInvalid }) => {
@@ -93,6 +97,31 @@ const buildFeeds = (feeds) => {
   return list;
 };
 
+const buildPostLink = (post) => {
+  const itemLink = document.createElement("a");
+  if (post.visited) {
+    itemLink.classList.add("fw-normal", "link-secondary");
+  } else {
+    itemLink.classList.add("fw-bold");
+  }
+  itemLink.target = "_black";
+  itemLink.href = post.url;
+  itemLink.dataset.id = post.id;
+  itemLink.textContent = post.title;
+  return itemLink;
+};
+const buildViewBtn = (postId) => {
+  const itemButton = document.createElement("button");
+
+  itemButton.classList.add("btn", "btn-outline-primary", "btn-sm");
+  itemButton.type = "button";
+  itemButton.dataset.bsToggle = "modal";
+  itemButton.dataset.bsTarget = "#postModal";
+  itemButton.dataset.id = postId;
+  itemButton.textContent = "Просмотр";
+  return itemButton;
+};
+
 const buildPosts = (posts) => {
   const list = document.createElement("ul");
   list.classList.add("list-group", "border-0", "rounded-0");
@@ -106,12 +135,8 @@ const buildPosts = (posts) => {
       "align-items-start",
       "border-end-0"
     );
-    const itemLink = document.createElement("a");
-    itemLink.classList.add("fw-bold");
-    itemLink.target = "_black";
-    itemLink.href = post.url;
-    itemLink.textContent = post.title;
-    item.append(itemLink);
+
+    item.append(buildPostLink(post), buildViewBtn(post.id));
     return item;
   });
   list.append(...listItems);
@@ -129,6 +154,12 @@ const renderPosts = (value) => {
   postsContainer.append(buildSectionHeader("Посты"));
   postsContainer.append(buildPosts(value));
 };
+const renderModal = (value) => {
+  const modalTitle = document.querySelector("#postModalLabel");
+  modalTitle.textContent = value.title;
+  const modalBody = document.querySelector(".modal-body");
+  modalBody.textContent = value.body;
+};
 export default () => onChange(state, (path, value) => {
   if (path === "appendProcess") {
     handleAppendChange(value);
@@ -138,5 +169,8 @@ export default () => onChange(state, (path, value) => {
   }
   if (path === "posts") {
     renderPosts(value);
+  }
+  if (path === "modal") {
+    renderModal(value);
   }
 });

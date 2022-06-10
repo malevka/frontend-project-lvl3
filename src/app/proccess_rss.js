@@ -1,6 +1,6 @@
 import getRssContent from "./api.js";
 
-const parseRss = (content, feedId) => {
+const parseRss = (content, feedId, initialId) => {
   const parser = new DOMParser();
   const rssDoc = parser.parseFromString(content, "application/xml");
   const title = rssDoc.querySelector("title").textContent;
@@ -9,9 +9,10 @@ const parseRss = (content, feedId) => {
   const rssItems = rssDoc.querySelectorAll("item");
   rssItems.forEach((item) => {
     const post = {
-      id: item.querySelector("guid").textContent,
+      id: posts.length + initialId,
       feedId,
       title: item.querySelector("title").textContent,
+      description: item.querySelector("description").textContent,
       url: item.querySelector("link").textContent
     };
     posts.push(post);
@@ -24,7 +25,7 @@ const parseRss = (content, feedId) => {
 export default (state, url, i18nextIns) => {
   const localState = state;
   getRssContent(url)
-    .then((content) => parseRss(content, state.feeds.length))
+    .then((content) => parseRss(content, state.feeds.length, state.posts.length))
     .then((result) => {
       localState.feeds.push({ url, ...result.feed });
       localState.posts.unshift(...result.posts);
@@ -40,15 +41,15 @@ export const updatePosts = (state) => {
   const promises = [];
   localState.feeds.forEach(({ url, id }) => {
     const promise = getRssContent(url)
-      .then((content) => parseRss(content, id))
+      .then((content) => parseRss(content, id, state.posts.length))
       .then((result) => {
         const existingPosts = localState.posts.reduce((arr, post) => {
           if (post.feedId === id) {
-            arr.push(post.id);
+            arr.push(post.url);
           }
           return arr;
         }, []);
-        const newPosts = result.posts.filter((post) => !existingPosts.includes(post.id));
+        const newPosts = result.posts.filter((post) => !existingPosts.includes(post.url));
         localState.posts.unshift(...newPosts);
         return Promise.resolve;
       });
