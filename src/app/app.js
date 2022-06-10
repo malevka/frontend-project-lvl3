@@ -8,7 +8,7 @@ export default (i18nextIns) => {
     localState.appendProcess = { state: "processing", message: "" };
     isUrlValid(url)
       .then(() => {
-        const urls = state.feeds.map(({ feedUrl }) => feedUrl);
+        const urls = state.feeds.map((feed) => feed.url);
         return isUrlUnique(urls, url);
       })
       .then(() => loadRssData(state, url, i18nextIns))
