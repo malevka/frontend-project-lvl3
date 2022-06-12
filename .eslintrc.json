@@ -26,6 +26,12 @@
         "import/extensions": [
             "error",
             "always"
+        ],
+        "no-param-reassign": [
+            "error",
+            {
+                "props": false
+            }
         ]
     }
 }
