@@ -1,13 +1,13 @@
-import createState from "./view.js";
-import { isUrlValid, isUrlUnique, isNotEmpty } from "./validation_utils.js";
-import parseRss from "./parse.js";
-import getRssContent from "./api.js";
+import createState from './view.js';
+import { isUrlValid, isUrlUnique, isNotEmpty } from './validation_utils.js';
+import parseRss from './parse.js';
+import getRssContent from './api.js';
 
 export default (i18nextIns) => {
   const state = createState();
-  const rssForm = document.querySelector(".rss-form");
-  const postModal = document.getElementById("postModal");
-  postModal.addEventListener("show.bs.modal", (event) => {
+  const rssForm = document.querySelector('.rss-form');
+  const postModal = document.getElementById('postModal');
+  postModal.addEventListener('show.bs.modal', (event) => {
     const postId = Number(event.relatedTarget.dataset.id);
     const post = state.posts.find(({ id }) => id === postId);
     state.uIState.visited[postId] = true;
@@ -15,20 +15,20 @@ export default (i18nextIns) => {
     state.posts = [...state.posts];
   });
 
-  rssForm.addEventListener("input", (e) => {
+  rssForm.addEventListener('input', (e) => {
     const url = e.target.value;
-    state.appendProcess = { ...state.appendProces, state: "filling" };
+    state.appendProcess = { ...state.appendProces, state: 'filling' };
     isNotEmpty(url).catch((err) => {
       state.appendProcess = {
-        state: "processed",
+        state: 'processed',
         error: i18nextIns.t(err.errors[0].key),
-        validationState: "invalid"
+        validationState: 'invalid',
       };
     });
   });
-  rssForm.addEventListener("submit", (e) => {
+  rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const input = document.getElementById("url-input");
+    const input = document.getElementById('url-input');
     const url = input.value.trim();
     isUrlValid(url)
       .then(() => {
@@ -37,19 +37,23 @@ export default (i18nextIns) => {
       })
       .catch((err) => {
         state.appendProcess = {
-          state: "processed",
+          state: 'processed',
           error: i18nextIns.t(err.errors[0].key),
-          validationState: "invalid"
+          validationState: 'invalid',
         };
         throw err;
       })
       .then(() => {
         state.appendProcess = {
-          state: "processing",
-          validationState: "valid"
+          state: 'processing',
+          validationState: 'valid',
         };
         return getRssContent(url).catch((err) => {
-          state.appendProcess = { ...state.appendProcess, state: "failed", error: i18nextIns.t("network_failure") };
+          state.appendProcess = {
+            ...state.appendProcess,
+            state: 'failed',
+            error: i18nextIns.t('network_failure'),
+          };
           throw err;
         });
       })
@@ -57,7 +61,11 @@ export default (i18nextIns) => {
         try {
           return parseRss(content, state.feeds.length, state.posts.length);
         } catch (err) {
-          state.appendProcess = { ...state.appendProcess, state: "failed", error: i18nextIns.t("invalid_content") };
+          state.appendProcess = {
+            ...state.appendProcess,
+            state: 'failed',
+            error: i18nextIns.t('invalid_content'),
+          };
           throw err;
         }
       })
@@ -66,9 +74,9 @@ export default (i18nextIns) => {
         state.posts.unshift(...result.posts);
         state.appendProcess = {
           ...state.appendProcess,
-          state: "processed",
-          successMsg: i18nextIns.t("success"),
-          error: ""
+          state: 'processed',
+          successMsg: i18nextIns.t('success'),
+          error: '',
         };
       })
       .catch();

@@ -17,11 +17,14 @@
         ],
         "quotes": [
             "error",
-            "double"
+            "single"
         ],
         "comma-dangle": [
             "error",
-            "never"
+            {
+                "objects": "always-multiline",
+                "arrays": "always-multiline"
+            }
         ],
         "import/extensions": [
             "error",
