@@ -14,7 +14,9 @@ i18nextInstance
           url_invalid: "Ссылка должна быть валидным URL",
           not_unique: "RSS уже существует",
           success: "RSS успешно загружен",
-          rss_invalid: "Ресурс не содержит валидный RSS"
+          invalid_content: "Ресурс не содержит валидный RSS",
+          network_failure: "Ошибка сети",
+          is_empty: "Не должно быть пустым"
         }
       }
     }

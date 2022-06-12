@@ -3,8 +3,11 @@ import onChange from "on-change";
 const state = {
   appendProcess: {
     state: "filling",
-    message: ""
+    successMsg: "",
+    error: null,
+    validationState: null
   },
+  uIState: { visited: {} },
   feeds: [],
   posts: [],
   modal: {
@@ -13,7 +16,7 @@ const state = {
   }
 };
 
-const renderFeedback = ({ message, isInvalid }) => {
+const renderFeedback = (message, isInvalid) => {
   const feedback = document.querySelector(".feedback");
   if (isInvalid) {
     feedback.classList.add("text-danger");
@@ -25,51 +28,35 @@ const renderFeedback = ({ message, isInvalid }) => {
   feedback.textContent = message;
 };
 
-const renderInput = ({ disabled, isInvalid, isEmpty }) => {
+const renderRssForm = (formState, isInvalid) => {
   const input = document.getElementById("url-input");
-  if (isInvalid) {
-    input.classList.add("is-invalid");
-  } else {
-    input.classList.remove("is-invalid");
-  }
-  input.disabled = disabled;
-  if (isEmpty) {
-    input.value = "";
-    input.focus();
-  }
-};
-
-const renderButton = ({ disabled }) => {
   const btn = document.querySelector(".btn");
-  btn.disabled = disabled;
-};
-const handleAppendChange = (value) => {
-  switch (value.state) {
-    case "success": {
-      renderButton({ disabled: false });
-      renderInput({ disabled: false, isEmpty: true });
-      renderFeedback({ message: value.message, isInvalid: false });
-      break;
-    }
-    case "failed": {
-      renderButton({ disabled: false });
-      renderInput({ disabled: false, isInvalid: true });
-      renderFeedback({ message: value.message, isInvalid: true });
-      break;
-    }
-    case "rss_invalid": {
-      renderButton({ disabled: false });
-      renderInput({ disabled: false });
-      renderFeedback({ message: value.message, isInvalid: true });
-      break;
-    }
-    default: {
-      renderButton({ disabled: true });
-      renderInput({ disabled: true, isInvalid: false });
-      renderFeedback({ message: "", isInvalid: false });
-      break;
+  input.disabled = formState === "processing";
+  btn.disabled = formState === "processing";
+  input.classList.remove("is-invalid");
+  if (formState === "processed") {
+    if (isInvalid) {
+      input.classList.add("is-invalid");
+    } else {
+      input.value = "";
+      input.focus();
     }
   }
+};
+const handleAppendState = (value) => {
+  if (value.state === "processing" || value.state === "filling") {
+    renderFeedback("", false);
+  }
+  if (value.state === "processed" && value.validationState === "invalid") {
+    renderFeedback(value.error, true);
+  }
+  if (value.state === "failed") {
+    renderFeedback(value.error, true);
+  }
+  if (value.state === "processed" && value.validationState === "valid") {
+    renderFeedback(value.successMsg, false);
+  }
+  renderRssForm(value.state, value.validationState === "invalid");
 };
 const buildSectionHeader = (header) => {
   const card = document.createElement("div");
@@ -97,22 +84,21 @@ const buildFeeds = (feeds) => {
   return list;
 };
 
-const buildPostLink = (post) => {
-  const localPost = post;
+const buildPostLink = (post, visited) => {
   const itemLink = document.createElement("a");
-  if (localPost.visited) {
+  if (visited[post.id]) {
     itemLink.classList.add("fw-normal", "link-secondary");
   } else {
     itemLink.classList.add("fw-bold");
   }
   itemLink.target = "_black";
-  itemLink.href = localPost.url;
-  itemLink.dataset.id = localPost.id;
-  itemLink.textContent = localPost.title;
+  itemLink.href = post.url;
+  itemLink.dataset.id = post.id;
+  itemLink.textContent = post.title;
   itemLink.onclick = () => {
     itemLink.classList.remove("fw-bold");
     itemLink.classList.add("fw-normal", "link-secondary");
-    localPost.visited = true;
+    visited[post.id] = true;
   };
   return itemLink;
 };
@@ -128,7 +114,7 @@ const buildViewBtn = (postId) => {
   return itemButton;
 };
 
-const buildPosts = (posts) => {
+const buildPosts = (posts, visited) => {
   const list = document.createElement("ul");
   list.classList.add("list-group", "border-0", "rounded-0");
   const listItems = posts.map((post) => {
@@ -142,10 +128,11 @@ const buildPosts = (posts) => {
       "border-end-0"
     );
 
-    item.append(buildPostLink(post), buildViewBtn(post.id));
+    item.append(buildPostLink(post, visited), buildViewBtn(post.id));
     return item;
   });
   list.append(...listItems);
+
   return list;
 };
 const renderFeeds = (value) => {
@@ -154,11 +141,11 @@ const renderFeeds = (value) => {
   feedsContainer.append(buildSectionHeader("Фиды"));
   feedsContainer.append(buildFeeds(value));
 };
-const renderPosts = (value) => {
+const renderPosts = (posts, visited) => {
   const postsContainer = document.querySelector(".posts");
   postsContainer.innerHTML = "";
   postsContainer.append(buildSectionHeader("Посты"));
-  postsContainer.append(buildPosts(value));
+  postsContainer.append(buildPosts(posts, visited));
 };
 const renderModal = (value) => {
   const modalTitle = document.querySelector("#postModalLabel");
@@ -170,17 +157,20 @@ const renderModal = (value) => {
   modalLink.href = value.url;
   modalLink.target = "_blank";
 };
-export default () => onChange(state, (path, value) => {
+
+const onStateChangeCallback = (watchedState, path, value) => {
   if (path === "appendProcess") {
-    handleAppendChange(value);
+    handleAppendState(value);
   }
   if (path === "feeds") {
     renderFeeds(value);
   }
   if (path === "posts") {
-    renderPosts(value);
+    renderPosts(value, watchedState.uIState.visited);
   }
   if (path === "modal") {
     renderModal(value);
   }
-});
+};
+
+export default () => onChange(state, (path, value) => onStateChangeCallback(state, path, value));
