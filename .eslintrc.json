@@ -23,6 +23,7 @@
             "error",
             {
                 "objects": "always-multiline",
+                "functions": "always-multiline",
                 "arrays": "always-multiline"
             }
         ],

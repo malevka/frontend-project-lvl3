@@ -125,7 +125,7 @@ const buildPosts = (posts, visited) => {
       'd-flex',
       'justify-content-between',
       'align-items-start',
-      'border-end-0'
+      'border-end-0',
     );
 
     item.append(buildPostLink(post, visited), buildViewBtn(post.id));

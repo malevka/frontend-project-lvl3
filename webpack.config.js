@@ -31,6 +31,6 @@ export default {
     ],
   },
   plugins: [new HtmlWebpackPlugin({ template: 'template.html' })].concat(
-    devMode ? [] : [new MiniCssExtractPlugin({ filename: 'style.css' })]
+    devMode ? [] : [new MiniCssExtractPlugin({ filename: 'style.css' })],
   ),
 };
